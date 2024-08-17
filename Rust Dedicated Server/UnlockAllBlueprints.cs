@@ -1,37 +1,27 @@
 using Oxide.Core.Plugins;
 using Oxide.Core;
-using System.Collections.Generic;
 using Oxide.Game.Rust.Cui;
 
 namespace Oxide.Plugins
 {
-    [Info("Unlock All Blueprints", "RustGPT", "1.0.0")]
-    [Description("Unlocks all blueprints for the player")]
+    [Info("Unlock All Blueprints", "YourName", "1.0.3")]
+    [Description("Allows players to learn all blueprints quickly with one command")]
 
     public class UnlockAllBlueprints : RustPlugin
     {
         [ChatCommand("unlockall")]
         private void UnlockAllBlueprintsCommand(BasePlayer player, string command, string[] args)
         {
-            if (!player.IsAdmin)
+            var blueprints = player.GetComponent<PlayerBlueprints>();
+            if (blueprints != null)
             {
-                player.ChatMessage("You don't have permission to use this command.");
-                return;
+                blueprints.UnlockAll();
+                player.ChatMessage("You have successfully learned all blueprints.");
             }
-
-            var itemList = ItemManager.itemList;
-            int unlockedCount = 0;
-
-            foreach (var itemDefinition in itemList)
+            else
             {
-                if (itemDefinition != null && itemDefinition.Blueprint != null && !player.blueprints.HasUnlocked(itemDefinition))
-                {
-                    player.blueprints.Unlock(itemDefinition);
-                    unlockedCount++;
-                }
+                player.ChatMessage("Failed to access your blueprints.");
             }
-
-            player.ChatMessage($"You have successfully unlocked {unlockedCount} blueprints.");
         }
     }
 }
