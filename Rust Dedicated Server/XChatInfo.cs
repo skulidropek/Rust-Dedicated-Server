@@ -12,6 +12,7 @@
 /// 
 /// Discord: https://discord.gg/sv6nF3gNU3
 /// RustGPT: https://chatgpt.com/g/g-xunzDbv9b-rustgpt
+/// Image: https://i.imgur.com/GvjkdN8_d.webp?maxwidth=760&fidelity=grand
 /// </summary>
 
 using System.Collections.Generic;
