@@ -13,6 +13,10 @@ namespace Oxide.Plugins
         private const string PermissionUnlockAll = "unlockallblueprints.use";
         private const string PermissionLockAll = "unlockallblueprints.admin";
 
+        /// <summary>
+        /// Called when the plugin is initialized.
+        /// Registers permissions required for using commands.
+        /// </summary>
         private void Init()
         {
             // Register the permissions
@@ -20,6 +24,10 @@ namespace Oxide.Plugins
             permission.RegisterPermission(PermissionLockAll, this);
         }
 
+        /// <summary>
+        /// Called when the server is initialized.
+        /// Unlocks all blueprints for currently active players.
+        /// </summary>
         private void OnServerInitialized()
         {
             foreach (var player in BasePlayer.activePlayerList)
@@ -28,12 +36,23 @@ namespace Oxide.Plugins
             }
         }
 
-        // Срабатывает при подключении игрока
+        /// <summary>
+        /// Called when a player connects to the server.
+        /// Automatically unlocks all blueprints for the connected player.
+        /// </summary>
+        /// <param name="player">The player who has connected.</param>
         private void OnPlayerConnected(BasePlayer player)
         {
             UnlockBlueprintsForPlayer(player);
         }
 
+        /// <summary>
+        /// Chat command for unlocking all blueprints for the player who uses the command.
+        /// Requires the player to have the appropriate permission.
+        /// </summary>
+        /// <param name="player">The player who used the command.</param>
+        /// <param name="command">The command name.</param>
+        /// <param name="args">Any arguments passed with the command.</param>
         [ChatCommand("unlockall")]
         private void UnlockAllBlueprintsCommand(BasePlayer player, string command, string[] args)
         {
@@ -47,6 +66,13 @@ namespace Oxide.Plugins
             player.ChatMessage("You have successfully unlocked all blueprints.");
         }
 
+        /// <summary>
+        /// Chat command for locking all blueprints for the player who uses the command.
+        /// Requires the player to have admin permission.
+        /// </summary>
+        /// <param name="player">The player who used the command.</param>
+        /// <param name="command">The command name.</param>
+        /// <param name="args">Any arguments passed with the command.</param>
         [ChatCommand("lockall")]
         private void LockAllBlueprintsCommand(BasePlayer player, string command, string[] args)
         {
@@ -60,7 +86,10 @@ namespace Oxide.Plugins
             player.ChatMessage("You have successfully locked all blueprints.");
         }
 
-        // Метод для разблокировки чертежей
+        /// <summary>
+        /// Unlocks all blueprints for the specified player.
+        /// </summary>
+        /// <param name="player">The player whose blueprints will be unlocked.</param>
         private void UnlockBlueprintsForPlayer(BasePlayer player)
         {
             var blueprints = player.GetComponent<PlayerBlueprints>();
@@ -75,7 +104,10 @@ namespace Oxide.Plugins
             }
         }
 
-        // Метод для блокировки чертежей
+        /// <summary>
+        /// Locks all blueprints for the specified player.
+        /// </summary>
+        /// <param name="player">The player whose blueprints will be locked.</param>
         private void LockBlueprintsForPlayer(BasePlayer player)
         {
             var blueprints = player.GetComponent<PlayerBlueprints>();
