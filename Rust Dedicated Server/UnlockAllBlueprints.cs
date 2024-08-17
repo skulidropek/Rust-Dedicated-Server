@@ -1,11 +1,10 @@
 using Oxide.Core.Plugins;
 using Oxide.Core;
-using Oxide.Game.Rust.Cui;
 using System.Collections.Generic;
 
 namespace Oxide.Plugins
 {
-    [Info("Unlock All Blueprints", "RustGPT", "1.2.0")]
+    [Info("Unlock All Blueprints", "RustGPT", "1.5.0")]
     [Description("Automatically unlocks all blueprints for players when they join the server and provides a chat command to do the same")]
 
     public class UnlockAllBlueprints : RustPlugin
@@ -19,7 +18,6 @@ namespace Oxide.Plugins
         /// </summary>
         private void Init()
         {
-            // Register the permissions
             permission.RegisterPermission(PermissionUnlockAll, this);
             permission.RegisterPermission(PermissionLockAll, this);
         }
@@ -32,7 +30,7 @@ namespace Oxide.Plugins
         {
             foreach (var player in BasePlayer.activePlayerList)
             {
-                UnlockBlueprintsForPlayer(player);
+                ManageBlueprints(player, unlock: true);
             }
         }
 
@@ -43,7 +41,7 @@ namespace Oxide.Plugins
         /// <param name="player">The player who has connected.</param>
         private void OnPlayerConnected(BasePlayer player)
         {
-            UnlockBlueprintsForPlayer(player);
+            ManageBlueprints(player, unlock: true);
         }
 
         /// <summary>
@@ -56,14 +54,7 @@ namespace Oxide.Plugins
         [ChatCommand("unlockall")]
         private void UnlockAllBlueprintsCommand(BasePlayer player, string command, string[] args)
         {
-            if (!permission.UserHasPermission(player.UserIDString, PermissionUnlockAll))
-            {
-                player.ChatMessage("You do not have permission to use this command.");
-                return;
-            }
-
-            UnlockBlueprintsForPlayer(player);
-            player.ChatMessage("You have successfully unlocked all blueprints.");
+            ManageBlueprints(player, unlock: true);
         }
 
         /// <summary>
@@ -76,49 +67,41 @@ namespace Oxide.Plugins
         [ChatCommand("lockall")]
         private void LockAllBlueprintsCommand(BasePlayer player, string command, string[] args)
         {
-            if (!permission.UserHasPermission(player.UserIDString, PermissionLockAll))
+            ManageBlueprints(player, unlock: false);
+        }
+
+        /// <summary>
+        /// Manages the unlocking or locking of blueprints for the specified player.
+        /// Checks the player's permissions before executing the action.
+        /// </summary>
+        /// <param name="player">The player whose blueprints will be managed.</param>
+        /// <param name="unlock">True to unlock blueprints, false to lock them.</param>
+        private void ManageBlueprints(BasePlayer player, bool unlock)
+        {
+            string permission = unlock ? PermissionUnlockAll : PermissionLockAll;
+
+            if (!this.permission.UserHasPermission(player.UserIDString, permission))
             {
-                player.ChatMessage("You do not have permission to use this command.");
+                player.ChatMessage($"You do not have permission to {(unlock ? "unlock" : "lock")} blueprints.");
                 return;
             }
 
-            LockBlueprintsForPlayer(player);
-            player.ChatMessage("You have successfully locked all blueprints.");
-        }
-
-        /// <summary>
-        /// Unlocks all blueprints for the specified player.
-        /// </summary>
-        /// <param name="player">The player whose blueprints will be unlocked.</param>
-        private void UnlockBlueprintsForPlayer(BasePlayer player)
-        {
             var blueprints = player.GetComponent<PlayerBlueprints>();
-            if (blueprints != null)
+            if (blueprints == null)
+            {
+                player.ChatMessage("Failed to access your blueprints.");
+                return;
+            }
+
+            if (unlock)
             {
                 blueprints.UnlockAll();
-                player.ChatMessage("All blueprints have been unlocked automatically.");
+                player.ChatMessage("All blueprints have been unlocked.");
             }
             else
-            {
-                player.ChatMessage("Failed to access your blueprints.");
-            }
-        }
-
-        /// <summary>
-        /// Locks all blueprints for the specified player.
-        /// </summary>
-        /// <param name="player">The player whose blueprints will be locked.</param>
-        private void LockBlueprintsForPlayer(BasePlayer player)
-        {
-            var blueprints = player.GetComponent<PlayerBlueprints>();
-            if (blueprints != null)
             {
                 blueprints.Reset();
-                player.ChatMessage("All blueprints have been locked automatically.");
-            }
-            else
-            {
-                player.ChatMessage("Failed to access your blueprints.");
+                player.ChatMessage("All blueprints have been locked.");
             }
         }
     }
