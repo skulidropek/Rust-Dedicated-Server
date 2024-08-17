@@ -5,11 +5,21 @@ using System.Collections.Generic;
 
 namespace Oxide.Plugins
 {
-    [Info("Unlock All Blueprints", "RustGPT", "1.1.0")]
+    [Info("Unlock All Blueprints", "RustGPT", "1.2.0")]
     [Description("Automatically unlocks all blueprints for players when they join the server and provides a chat command to do the same")]
 
     public class UnlockAllBlueprints : RustPlugin
     {
+        private const string PermissionUnlockAll = "unlockallblueprints.use";
+        private const string PermissionLockAll = "unlockallblueprints.admin";
+
+        private void Init()
+        {
+            // Register the permissions
+            permission.RegisterPermission(PermissionUnlockAll, this);
+            permission.RegisterPermission(PermissionLockAll, this);
+        }
+
         private void OnServerInitialized()
         {
             foreach (var player in BasePlayer.activePlayerList)
@@ -27,6 +37,12 @@ namespace Oxide.Plugins
         [ChatCommand("unlockall")]
         private void UnlockAllBlueprintsCommand(BasePlayer player, string command, string[] args)
         {
+            if (!permission.UserHasPermission(player.UserIDString, PermissionUnlockAll))
+            {
+                player.ChatMessage("You do not have permission to use this command.");
+                return;
+            }
+
             UnlockBlueprintsForPlayer(player);
             player.ChatMessage("You have successfully unlocked all blueprints.");
         }
@@ -34,10 +50,14 @@ namespace Oxide.Plugins
         [ChatCommand("lockall")]
         private void LockAllBlueprintsCommand(BasePlayer player, string command, string[] args)
         {
-            if (!player.IsAdmin)
+            if (!permission.UserHasPermission(player.UserIDString, PermissionLockAll))
+            {
+                player.ChatMessage("You do not have permission to use this command.");
                 return;
+            }
 
             LockBlueprintsForPlayer(player);
+            player.ChatMessage("You have successfully locked all blueprints.");
         }
 
         // Метод для разблокировки чертежей
