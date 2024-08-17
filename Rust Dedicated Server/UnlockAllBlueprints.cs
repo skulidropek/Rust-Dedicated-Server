@@ -1,7 +1,29 @@
-using Oxide.Core.Plugins;
-using Oxide.Core;
-using System.Collections.Generic;
-
+/// <summary>
+/// Unlock All Blueprints Plugin
+/// 
+/// This plugin provides functionality to automatically unlock all blueprints for players when they join the server.
+/// Additionally, it offers chat commands for players (or admins) to unlock or lock all blueprints manually.
+///
+/// Permissions:
+/// - `unlockallblueprints.use`: Allows a player to use the /unlockall command to unlock all blueprints.
+/// - `unlockallblueprints.admin`: Allows a player to use the /lockall command to lock all blueprints.
+///
+/// Commands:
+/// - `/unlockall`: Unlocks all blueprints for the player who uses the command. Requires the `unlockallblueprints.use` permission.
+/// - `/lockall`: Locks all blueprints for the player who uses the command. Requires the `unlockallblueprints.admin` permission.
+///
+/// Example Usage:
+/// 1. Grant permission to a player to unlock blueprints:
+///    `oxide.grant user <username or steamid> unlockallblueprints.use`
+///
+/// 2. Grant admin permission to lock blueprints:
+///    `oxide.grant user <username or steamid> unlockallblueprints.admin`
+///
+/// 3. Player uses `/unlockall` in chat to unlock all blueprints.
+/// 4. Admin uses `/lockall` in chat to lock all blueprints.
+///
+/// </summary>
+/// 
 namespace Oxide.Plugins
 {
     [Info("Unlock All Blueprints", "RustGPT", "1.5.0")]
