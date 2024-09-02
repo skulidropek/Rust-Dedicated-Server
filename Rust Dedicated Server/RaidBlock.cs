@@ -12,12 +12,15 @@ namespace Oxide.Plugins
     [Description("Adds a raid block system with a UI component to show the block duration, applying to all players in the raid zone.")]
     public class RaidBlock : RustPlugin
     {
+        [PluginReference]
+        private Plugin CombatBlock;
+
         private const string RaidBlockUI = "RaidBlockUI";
         private const string RaidBlockProgress = "RaidBlockProgress";
         private Dictionary<ulong, Timer> raidTimers = new Dictionary<ulong, Timer>();
         private HashSet<ulong> blockedPlayers = new HashSet<ulong>();
         private List<RaidZone> activeRaidZones = new List<RaidZone>();
-        private List<SphereEntity> activeDomes = new List<SphereEntity>(); 
+        private List<SphereEntity> activeDomes = new List<SphereEntity>();
 
         private class PluginConfig
         {
@@ -27,10 +30,9 @@ namespace Oxide.Plugins
             public List<string> BlockedCommands { get; set; }
             public float RaidZoneRadius { get; set; }
 
-            
             public bool IsSphereEnabled { get; set; } = true;
-            public int SphereType { get; set; } = 0; 
-            public int DomeTransparencyLevel { get; set; } = 3; 
+            public int SphereType { get; set; } = 0;
+            public int DomeTransparencyLevel { get; set; } = 3;
         }
 
         private PluginConfig config;
@@ -75,11 +77,12 @@ namespace Oxide.Plugins
         private void Init()
         {
             LoadDefaultMessages();
-            ClearAllRaidBlockUI();         }
+            ClearAllRaidBlockUI();
+        }
 
         private void Unload()
         {
-            ClearAllRaidZonesAndDomes(); 
+            ClearAllRaidZonesAndDomes();
             Puts("Plugin unloaded, all active raid zones and domes have been cleared.");
         }
 
@@ -144,7 +147,7 @@ namespace Oxide.Plugins
             blockedPlayers.Add(playerId);
             Puts($"Player {player.displayName} has been added to blocked players");
 
-            CreateRaidBlockUI(player, duration); 
+            CreateRaidBlockUI(player, duration);
 
             raidTimers[playerId] = timer.Repeat(1f, (int)duration, () =>
             {
@@ -170,10 +173,24 @@ namespace Oxide.Plugins
             CuiElementContainer container = new CuiElementContainer();
             string panelName = RaidBlockUI;
 
+            // Determine position based on CombatBlock status
+            string anchorMin = "0.3447913 0.1135";
+            string anchorMax = "0.640625 0.1435";
+
+            if (CombatBlock != null)
+            {
+                var hasCombatBlock = CombatBlock.Call<bool>("HasCombatBlock", player.userID.Get());
+                if (hasCombatBlock)
+                {
+                    anchorMin = "0.3447913 0.1435";
+                    anchorMax = "0.640625 0.1735";
+                }
+            }
+
             container.Add(new CuiPanel
             {
                 Image = { Color = "0.97 0.92 0.88 0.18" },
-                RectTransform = { AnchorMin = "0.3447913 0.1135", AnchorMax = "0.640625 0.1435" },
+                RectTransform = { AnchorMin = anchorMin, AnchorMax = anchorMax },
                 CursorEnabled = false
             }, "Hud", panelName);
 
@@ -241,7 +258,7 @@ namespace Oxide.Plugins
             activeRaidZones.Add(raidZone);
             Puts($"Raid zone created at {position} with expiration at {raidZone.ExpirationTime}");
 
-            
+
             if (config.IsSphereEnabled)
             {
                 CreateDome(position);
@@ -259,7 +276,7 @@ namespace Oxide.Plugins
                 {
                     sphere.currentRadius = config.RaidZoneRadius * 2;
                     sphere.Spawn();
-                    activeDomes.Add(sphere); 
+                    activeDomes.Add(sphere);
                     Puts($"Dome created at position {position} with radius {sphere.currentRadius}");
                 }
             }
