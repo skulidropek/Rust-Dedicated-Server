@@ -274,7 +274,11 @@ namespace Oxide.Plugins
                 SphereEntity sphere = GameManager.server.CreateEntity(spherePrefab, position) as SphereEntity;
                 if (sphere != null)
                 {
-                    sphere.currentRadius = config.RaidZoneRadius * 2;
+                    sphere.enableSaving = false; // Отключение сохранения состояния сферы
+                    sphere.currentRadius = config.RaidZoneRadius; // Установка радиуса сферы
+                    sphere.lerpRadius = config.RaidZoneRadius; // Установка конечного радиуса для анимации
+                    sphere.lerpSpeed = 0f; // Отключение плавного изменения размера
+
                     sphere.Spawn();
                     activeDomes.Add(sphere);
                     Puts($"Dome created at position {position} with radius {sphere.currentRadius}");
