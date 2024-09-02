@@ -518,6 +518,7 @@
   <ItemGroup>
     <Compile Include="CombatBlock.cs" />
     <Compile Include="Dancing.cs" />
+    <Compile Include="RaidBlock.cs" />
     <Compile Include="UberTool.cs" />
     <Compile Include="XChatInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
